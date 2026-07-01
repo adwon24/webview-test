@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Ad Test - iframe</title>
+
+<style>
+body{
+    margin:0;
+    background:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:sans-serif;
+}
+
+#ad{
+    width:300px;
+    height:250px;
+}
+
+button{
+    margin-top:60px;
+    width:240px;
+    height:50px;
+    border:none;
+    border-radius:8px;
+    background:#4CAF50;
+    color:white;
+    font-size:18px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="ad">
+    <iframe
+        src="https://www.mobwithad.com/api/banner/app/adwon/v2/adwon?zone=10894055&output=html&count=&w=300&h=250&adid=14c37bad-061b-4d47-9256-25aae1ff6a5d&auid=&clientIp=&userAdTrackingYn=Y"
+        width="300"
+        height="250"
+        frameborder="0"
+        scrolling="no">
+    </iframe>
+</div>
+
+<button>
+광고 보고 적립하기
+</button>
+
+</body>
+</html>

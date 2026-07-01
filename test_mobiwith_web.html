@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+
+        <meta charset="UTF-8">
+
+        <style>
+
+            body{
+
+            margin:0;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            background:white;
+            font-family:sans-serif;
+
+            }
+
+            #ad{
+            width:300px;
+            height:250px;
+            }
+
+            button{
+            margin-top:60px;
+            width:240px;
+            height:50px;
+            background:#4CAF50;
+            color:white;
+            font-size:18px;
+            border:none;
+            border-radius:8px;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div id="ad"></div>
+
+        <button>
+            광고 보고 적립하기
+        </button>
+
+        <script>
+
+            fetch("https://www.mobwithad.com/api/banner/app/adwon/v2/adwon?zone=10894055&output=html&count=&w=300&h=250&adid=14c37bad-061b-4d47-9256-25aae1ff6a5d&auid=&clientIp=&userAdTrackingYn=Y")
+            .then(r=>r.text())
+            .then(html=>{
+
+            document.getElementById("ad").innerHTML = html;
+
+            });
+
+        </script>
+
+    </body>
+</html>
