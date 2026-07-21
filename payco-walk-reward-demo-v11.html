@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>PAYCO 워크 리워드 데모</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --red: #E6003D;
+  --red-dark: #B0002D;
+  --red-light: #FFE1E9;
+  --red-tint: #FFF2F5;
+  --pink: #FF6E8E;
+  --gold: #FFB020;
+  --mint: #00C2A8;
+  --navy: #2B2033;
+  --ink: #241A1F;
+  --ink-soft: #86767D;
+  --ink-faint: #C9B9BF;
+  --cream: #FFFFFF;
+  --white: #ffffff;
+  --line: #F0EDEE;
+}
+*{
+  box-sizing:border-box; 
+  margin:0; 
+  padding:0;
+}
+body{
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: #EDEBEC;
+  min-height: 100vh;
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  padding: 40px 16px;
+  color: var(--ink);
+}
+.stage{ 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+  gap:18px;
+}
+.stage-label{ 
+  font-size:13px; 
+  color:#A6828F; 
+  letter-spacing:0.02em; 
+  font-weight:700;
+}
+.phone{
+  width: 375px;
+  height: 780px;
+  background: var(--cream);
+  border-radius: 46px;
+  box-shadow: 0 30px 60px -20px rgba(150,20,50,0.35), 0 0 0 10px #201620;
+  position: relative;
+  overflow: hidden;
+}
+.notch{
+  position:absolute; 
+  top:0; left:50%; 
+  transform:translateX(-50%);
+  width: 150px; 
+  height: 26px; 
+  background:#201620; 
+  border-radius: 0 0 18px 18px; 
+  z-index:50;
+}
+.statusbar{
+  height: 46px; 
+  display:flex; 
+  align-items:flex-end; 
+  justify-content:space-between;
+  padding: 0 26px 8px; 
+  font-size: 13px; 
+  font-weight:700; 
+  color: var(--ink);
+}
+.screen{
+  position:absolute; 
+  inset:0; 
+  top:46px;
+  background: var(--cream);
+  transform: translateX(100%);
+  transition: transform .38s cubic-bezier(.22,.9,.32,1);
+  overflow-y:auto;
+  padding-bottom: 30px;
+  -ms-overflow-style: none; 
+  scrollbar-width:none;
+}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{ transform: translateX(0); z-index: 5;}
+
+.payco-logo{ 
+  display:inline-flex; 
+  align-items:center; 
+  gap:4px; 
+  font-weight:900; 
+  font-size:16px; 
+  color: var(--red); 
+  letter-spacing:-0.02em;
+}
+.payco-logo .dot{
+  width:5px;
+  height:5px;
+  border-radius:50%; 
+  background: var(--gold); 
+  margin-left:1px;
+}
+
+.topbar{ 
+  display:flex; 
+  align-items:center; 
+  gap:8px; 
+  padding: 10px 18px 4px;
+}
+.topbar .back{ 
+  width:32px;
+  height:32px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  border-radius:50%; 
+  cursor:pointer; 
+  color:var(--ink); 
+  font-size:18px;
+}
+.topbar .back:active{ background: var(--red-light); }
+.topbar .title{ 
+  flex:1; 
+  text-align:center; 
+  font-size:16px; 
+  font-weight:800; 
+}
+
+.confetti{ position:absolute; border-radius:2px; opacity:.85; pointer-events:none;}
+
+.hero{ padding: 4px 24px 14px; position:relative; z-index:2;}
+.hero .label{ font-size:14px; color: var(--ink-soft); font-weight:700; margin-bottom:6px;}
+.step-row{ display:flex; align-items:flex-end; gap:8px; margin-bottom: 4px;}
+.step-num{ font-size:42px; font-weight:900; letter-spacing:-0.03em; color: var(--red); }
+.step-unit{ font-size:16px; font-weight:800; color: var(--ink-soft); padding-bottom:8px;}
+.sub-stats{ font-size:13px; color: var(--ink-soft); font-weight:700; }
+
+.mascot-wrap{ 
+  position:relative; 
+  height: 200px; 
+  margin: 2px 0 6px; 
+  display:flex; 
+  align-items:flex-end; 
+  justify-content:center; 
+  overflow:hidden;
+}
+.mascot-bg{ 
+  position:absolute; 
+  inset:0; 
+  background: radial-gradient(110% 90% at 50% 100%, #FFEEF1 0%, rgba(255,238,241,0) 68%);
+}
+.mascot{ 
+  position:relative; 
+  z-index:3; 
+  animation: bob 2.6s ease-in-out infinite; 
+}
+@keyframes bob{ 
+  0%,100%{transform: translateY(0) rotate(0deg);} 
+  50%{ transform: translateY(-9px) rotate(-2deg);} 
+}
+.mascot.walk-cycle{ animation: walkBob .6s ease-in-out infinite;}
+@keyframes walkBob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-5px);} }
+.foot{ transform-box: fill-box; transform-origin: 50% 0%; animation: legSwing .6s ease-in-out infinite;}
+.foot-left{ animation-delay: 0s;}
+.foot-right{ animation-delay: .3s;}
+@keyframes legSwing{ 0%,100%{ transform: rotate(-16deg);} 50%{ transform: rotate(16deg);} }
+
+.progress-track{ 
+  margin: 4px 24px 10px; 
+  height: 10px; 
+  border-radius:10px; 
+  background: #FBD9E1; 
+  overflow:hidden; 
+  position:relative; 
+  z-index:2;
+}
+.progress-fill{ 
+  height:100%; 
+  border-radius:10px; 
+  background: linear-gradient(90deg, var(--red), var(--pink)); 
+  transition: width .6s ease;
+}
+.milestones{ 
+  display:flex; 
+  justify-content:space-between; 
+  padding: 0 22px;
+  margin-bottom: 18px; 
+  position:relative; 
+  z-index:2;
+}
+.milestone{ display:flex; flex-direction:column; align-items:center; gap:6px; width: 52px;}
+.milestone .dot{ 
+  width:32px; 
+  height:32px; 
+  border-radius:50%; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  font-size:15px; 
+  background: var(--white); 
+  border: 2px solid var(--line); 
+  color: var(--ink-faint);
+}
+.milestone.done .dot{ background: var(--mint); color:#fff; border-color: var(--mint);}
+.milestone.reward .dot{ background: var(--gold); color:#fff; border-color: var(--gold);}
+.milestone .m-label{ font-size:10.5px; font-weight:800; color: var(--ink-soft);}
+
+.search-pill{ 
+  margin: 0 20px 20px; 
+  background: var(--white); 
+  border:1.5px solid var(--line); 
+  border-radius: 16px; 
+  padding: 13px 16px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  font-size: 13.5px; 
+  font-weight:700; 
+  color: var(--ink-soft);
+}
+
+.section-title{ padding: 4px 20px 12px; font-size:16px; font-weight:900;}
+.section-title .accent{ color: var(--red); }
+
+.stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding: 0 20px 20px;}
+.stat-box{ background: var(--white); border:1.5px solid var(--line); border-radius:18px; padding: 16px 16px 14px;}
+.stat-box .sb-label{ font-size:12.5px; font-weight:800; color: var(--ink-soft); margin-bottom:8px;}
+.stat-box .sb-num{ font-size:23px; font-weight:900; color: var(--red); letter-spacing:-0.02em;}
+.stat-box .sb-unit{ font-size:12px; font-weight:800; color:var(--ink); margin-left:2px;}
+
+.menu-grid{ padding: 0 20px; display:flex; flex-direction:column; gap:2px;}
+.menu-item{ display:flex; align-items:center; gap:14px; padding: 13px 8px; border-radius:16px; cursor:pointer;}
+.menu-item:active{ background: var(--red-tint); }
+.menu-icon{ width:44px;height:44px;border-radius:14px; display:flex;align-items:center;justify-content:center; font-size:20px; flex-shrink:0;}
+.menu-text{ flex:1;}
+.menu-title{ font-size:14.5px; font-weight:800;}
+.menu-sub{ font-size:12px; color: var(--ink-soft); margin-top:2px; font-weight:700;}
+.menu-chevron{ color: var(--ink-faint); font-size:16px;}
+
+.ribbon-banner{ 
+  margin: 16px 20px; 
+  border-radius:20px; 
+  overflow:hidden; 
+  position:relative; 
+  background: linear-gradient(135deg,#2B2033,#472A3A); 
+  padding: 20px 90px 20px 18px; 
+  color:#fff; 
+  min-height: 78px; 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:center;
+}
+/* .ribbon-banner .b-title{ font-size:14.5px; font-weight:800; margin-bottom:4px;}
+.ribbon-banner .b-sub{ font-size:11.5px; color:#E7B9C6; font-weight:700;}
+.ribbon-tag{ 
+  position:absolute; 
+  right:-26px; top:14px; 
+  transform: rotate(45deg); 
+  background: var(--red); color:#fff; 
+  font-weight:900; 
+  font-size:11px; 
+  letter-spacing:0.04em; 
+  padding: 5px 34px; 
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+} */
+.ad-banner{
+  border-radius: 20px;
+  margin: 16px 20px 4px 20px;
+  justify-content: center;
+  width: 100%;
+}
+
+.ad-slot{ margin: 16px 20px; border-radius:20px; background: var(--white); border:1.5px dashed #D9D2D5; padding: 20px 18px; position:relative;}
+.ad-slot-badge{ position:absolute; top:14px; right:16px; font-size:10px; font-weight:900; color: var(--ink-faint); border:1px solid var(--ink-faint); border-radius:6px; padding:2px 6px;}
+.ad-slot-title{ font-size:14px; font-weight:800; color: var(--ink); margin-bottom:4px;}
+.ad-slot-sub{ font-size:11.5px; font-weight:700; color: var(--ink-faint);}
+
+.stat-card{ margin: 6px 20px 18px; background: var(--white); border:1.5px solid var(--line); border-radius:18px; padding: 16px 18px; display:flex; align-items:center; justify-content:space-between;}
+.stat-card .s-label{ font-size:13px; color: var(--ink-soft); font-weight:700; margin-bottom:4px;}
+.stat-card .s-value{ font-size:16px; font-weight:900;}
+
+.toggle-row{ margin: 4px 20px 10px; display:flex; align-items:center; justify-content:space-between; padding: 14px 4px; border-top:1.5px solid var(--line);}
+.toggle-row .t-label{ font-size:14px; font-weight:800;}
+.switch{ width:46px; height:26px; border-radius:20px; background:#EBDCE1; position:relative; cursor:pointer; transition: background .25s;}
+.switch.on{ background: var(--red); }
+.switch .knob{ position:absolute; top:3px; left:3px; width:20px;height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition: left .25s;}
+.switch.on .knob{ left:23px;}
+
+.foot-links{ display:flex; justify-content:center; gap:18px; padding: 18px 0 8px; font-size:12px; color: var(--ink-faint); font-weight:700;}
+
+.detail-hero{ padding: 26px 24px 6px; text-align:center; position:relative; z-index:2;}
+.detail-hero .d-icon{ width:88px;height:88px;border-radius:26px; margin: 0 auto 16px; display:flex;align-items:center;justify-content:center; font-size:38px; background: var(--red-light);}
+.detail-hero h2{ font-size:19px; font-weight:900; margin-bottom:8px;}
+.detail-hero p{ font-size:13.5px; color: var(--ink-soft); font-weight:700; line-height:1.5;}
+
+.wheel-wrap{ display:flex; justify-content:center; padding: 18px 0 8px; position:relative;}
+.wheel{ transition: transform 3.2s cubic-bezier(.12,.88,.12,1); }
+.wheel-pin{ position:absolute; top:-6px; left:50%; transform:translateX(-50%); font-size:22px; z-index:4;}
+
+.rl-wrap{ background: linear-gradient(180deg,#2E2C30,#242226); color:#fff; padding: 26px 22px 34px; position:relative; overflow:hidden; min-height: calc(100% - 46px);}
+.rl-eyebrow{ font-size:13px; font-weight:800; color:#F4C948; text-align:center; margin-bottom:8px; letter-spacing:0.01em;}
+.rl-headline{ font-size:34px; font-weight:900; text-align:center; line-height:1.16; color:#FFD400; letter-spacing:-0.02em; position:relative; z-index:2;}
+.rl-sub{ font-size:12.5px; text-align:center; color:#D8D3D6; font-weight:700; margin-top:16px; line-height:1.6;}
+.rl-badge{
+  position:absolute; top:20px; right:12px; width:76px;height:76px; background: var(--red); color:#fff;
+  display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:900; line-height:1.3;
+  transform:rotate(10deg);
+  clip-path: polygon(50% 0%, 61% 15%, 78% 8%, 82% 26%, 100% 30%, 92% 47%, 100% 64%, 82% 68%, 79% 86%, 61% 79%, 50% 96%, 39% 79%, 21% 86%, 18% 68%, 0% 64%, 8% 47%, 0% 30%, 18% 26%, 21% 8%, 39% 15%);
+  z-index:3;
+}
+.rl-wheel-area{ position:relative; margin-top:30px; display:flex; justify-content:center; align-items:center;}
+.rl-wheel-ring{ padding:9px; border-radius:50%; background: linear-gradient(180deg,#FF5470,var(--red-dark)); box-shadow: 0 14px 30px rgba(0,0,0,.4);}
+.rl-center-btn{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:72px;height:72px;border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #FF4463, var(--red-dark)); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:11.5px; cursor:pointer;
+  border:4px solid #fff; box-shadow:0 8px 18px rgba(0,0,0,.4); z-index:5; line-height:1.3;
+}
+.rl-center-btn span{ font-size:13px; letter-spacing:0.02em;}
+.rl-center-btn.spinning{ opacity:.7; cursor:default;}
+.coin{ position:absolute; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35));}
+.rl-mascot-row{ display:flex; justify-content:center; margin-top:8px;}
+#screen-roulette{ padding-bottom:0;}
+
+.scratch-stage{ display:flex; justify-content:center; padding: 22px 0 6px;}
+.scratch-card{ position:relative; width:260px; height:150px; border-radius:20px; overflow:hidden; box-shadow: 0 14px 30px -12px rgba(0,0,0,.25); background:#fff;}
+.scratch-prize{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; background: linear-gradient(135deg,#FFEAF0,#FFF6D9); font-size:34px; font-weight:900; color: var(--red);}
+.scratch-card canvas{ position:absolute; inset:0; width:100%; height:100%; cursor:grab; touch-action:none; transition: opacity .5s ease;}
+.scratch-hint{ text-align:center; font-size:12.5px; color: var(--ink-soft); font-weight:700; margin-top:14px;}
+
+/* RPS */
+.rps-arena{ display:flex; align-items:center; justify-content:center; gap:22px; padding: 26px 20px 8px;}
+.rps-side{ display:flex; flex-direction:column; align-items:center; gap:8px;}
+.rps-hand{ width:88px;height:88px; border-radius:50%; background: var(--white); border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:40px; box-shadow: 0 8px 18px -8px rgba(0,0,0,.15);}
+.rps-hand.shaking{ animation: shake .28s ease-in-out infinite;}
+@keyframes shake{ 0%,100%{ transform: rotate(0deg) scale(1);} 50%{ transform: rotate(-10deg) scale(1.06);} }
+.rps-tag{ font-size:12px; font-weight:800; color: var(--ink-soft);}
+.rps-vs{ font-size:14px; font-weight:900; color: var(--ink-faint);}
+.rps-result-text{ text-align:center; font-size:15px; font-weight:900; min-height:22px; margin: 6px 0 4px;}
+.rps-choices{ display:flex; justify-content:center; gap:12px; padding: 18px 20px 10px;}
+.rps-choice-btn{ width:78px; height:88px; border-radius:18px; background: var(--white); border:1.5px solid var(--line); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-size:28px; cursor:pointer;}
+.rps-choice-btn span{ font-size:11.5px; font-weight:800; color: var(--ink-soft);}
+.rps-choice-btn:active{ background: var(--red-tint); transform: scale(.96);}
+.rps-choice-btn.disabled{ opacity:.4; pointer-events:none;}
+
+/* Coin */
+.coin-stage{ display:flex; justify-content:center; padding: 30px 0 10px; perspective: 800px;}
+.coin{ width:150px; height:150px; position:relative; transform-style:preserve-3d; transition: transform 1.4s cubic-bezier(.2,.8,.25,1);}
+.coin-face{ position:absolute; inset:0; border-radius:50%; display:flex; align-items:center; justify-content:center; text-align:center; font-size:20px; font-weight:900; color:#fff; backface-visibility:hidden; box-shadow: inset 0 0 0 6px rgba(255,255,255,.35), 0 14px 26px -10px rgba(0,0,0,.35);}
+.coin-front{ background: radial-gradient(circle at 35% 30%, #FFD966, #E6A100);}
+.coin-back{ background: radial-gradient(circle at 35% 30%, #FF5C7A, var(--red-dark)); transform: rotateY(180deg); font-size:15px; line-height:1.4;}
+
+/* Check-in */
+.checkin-strip{ display:flex; justify-content:space-between; padding: 22px 20px 6px;}
+.checkin-day{ display:flex; flex-direction:column; align-items:center; gap:8px; width:38px;}
+.checkin-day .cd-label{ font-size:11px; font-weight:800; color: var(--ink-soft);}
+.checkin-day .cd-circle{ width:34px;height:34px;border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; background: var(--white); border:2px solid var(--line); color: var(--ink-faint); font-weight:800;}
+.checkin-day.done .cd-circle{ background: var(--mint); border-color: var(--mint); color:#fff;}
+.checkin-day.today .cd-circle{ border-color: var(--red); color: var(--red); font-weight:900;}
+.checkin-day.today.stamped .cd-circle{ background: var(--red); color:#fff; animation: stampPop .4s cubic-bezier(.2,1.4,.4,1);}
+@keyframes stampPop{ 0%{ transform: scale(.3) rotate(-15deg); opacity:0;} 60%{ transform: scale(1.15) rotate(4deg); opacity:1;} 100%{ transform: scale(1) rotate(0);} }
+
+/* Mission */
+.mission-list{ padding: 20px 20px 6px; display:flex; flex-direction:column; gap:10px;}
+.mission-item{ display:flex; align-items:center; gap:12px; background: var(--white); border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; cursor:pointer;}
+.mission-item .mi-check{ width:26px;height:26px;border-radius:50%; border:2px solid var(--ink-faint); display:flex; align-items:center; justify-content:center; font-size:14px; color:transparent; flex-shrink:0; transition: all .2s;}
+.mission-item.checked .mi-check{ background: var(--mint); border-color: var(--mint); color:#fff;}
+.mission-item .mi-text{ font-size:14px; font-weight:700;}
+.mission-item.checked .mi-text{ color: var(--ink-soft); text-decoration: line-through;}
+
+/* 보상 팝업 모달 */
+.result-modal-overlay{
+  position:absolute; inset:0; z-index:80; background: rgba(24,12,18,0.55);
+  display:flex; align-items:center; justify-content:center; padding: 0 30px;
+  opacity:0; pointer-events:none; transition: opacity .22s ease;
+}
+.result-modal-overlay.active{ opacity:1; pointer-events:auto;}
+.result-modal-card{
+  width:100%; max-width:280px; background:#fff; border-radius:20px; padding: 28px 22px 20px;
+  text-align:center; transform: scale(.88); transition: transform .22s cubic-bezier(.2,1.3,.4,1);
+  box-shadow: 0 24px 50px -10px rgba(0,0,0,.4);
+}
+.result-modal-overlay.active .result-modal-card{ transform: scale(1);}
+.result-modal-card .rm-title{ color: var(--red); font-size:18px; font-weight:900; margin-bottom:6px;}
+.result-modal-card .rm-mascot{ display:flex; justify-content:center; margin: 4px 0 2px;}
+.result-modal-card .rm-sub{ font-size:21px; font-weight:900; color: var(--red); margin-bottom:12px;}
+.result-modal-card .rm-desc{ font-size:12px; color: var(--ink-soft); font-weight:600; line-height:1.6; margin-bottom:18px;}
+.result-modal-card .btn{ margin-top:0;}
+.result-modal-card .btn.secondary{ margin-top:8px; background: var(--ink); color:#fff; border:none;}
+
+.cta-area{ padding: 20px 24px 10px; }
+.btn{ width:100%; padding: 16px; border-radius: 16px; border:none; font-size:15px; font-weight:900; background: var(--red); color:#fff; cursor:pointer; transition: transform .12s, background .2s;}
+.btn:active{ transform: scale(.97); background: var(--red-dark);}
+.btn.secondary{ background: var(--white); color: var(--ink); border: 1.5px solid var(--line); margin-top:10px;}
+.btn:disabled{ background:#F0C4CE; cursor:default;}
+
+@keyframes pop{ 0%{ transform: scale(.4); opacity:0;} 100%{ transform: scale(1); opacity:1;} }
+
+.pill-row{ display:flex; gap:8px; padding: 4px 20px 0; flex-wrap:wrap; justify-content:center;}
+.pill{ font-size:11.5px; font-weight:800; padding:7px 12px; border-radius:20px; background: var(--red-light); color: var(--red-dark);}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="stage-label">PAYCO 워크 리워드 · 클릭 데모 (v2, PAYCO 레퍼런스 반영)</div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span>🔋📶📡</span></div>
+
+    <div class="screen active" id="screen-off">
+      <div class="topbar"><span style="width:32px"></span><span class="payco-logo" style="flex:1;justify-content:center;">PAYCO<span class="dot"></span> 워크</span><span style="width:32px"></span></div>
+      <div class="hero">
+        <div class="label">오늘 이만큼 걸었어요</div>
+        <div class="step-row"><span class="step-num">0</span><span class="step-unit">걸음</span></div>
+        <div class="sub-stats">0 Km · 0 Kcal</div>
+      </div>
+      <div class="mascot-wrap">
+        <!-- <div class="mascot-bg"></div> -->
+        <!-- <div id="confetti-off"></div> -->
+        
+          <video src="./video/mascot_payco.mp4" autoplay muted loop width="100%" height="100%"></video>
+          <!-- <video src="https://drive.google.com/file/d/13RAQTWVL06fvSHvbqQ1tu8lwyi1HpPXP/view?usp=sharing" autoplay muted loop width="100%" height="100%"></video> -->
+        
+        <!-- <svg class="mascot walk-cycle" width="168" height="168" viewBox="0 0 168 168">
+          <ellipse cx="84" cy="150" rx="46" ry="8" fill="#FFCBD8"/>
+          <g class="foot foot-left"><ellipse cx="70" cy="132" rx="13" ry="9" fill="#E6003D"/></g>
+          <g class="foot foot-right"><ellipse cx="98" cy="132" rx="13" ry="9" fill="#E6003D"/></g>
+          <ellipse cx="52" cy="52" rx="17" ry="22" fill="#E6003D"/>
+          <ellipse cx="116" cy="52" rx="17" ry="22" fill="#E6003D"/>
+          <circle cx="84" cy="86" r="54" fill="#FFFFFF" stroke="#241A1F" stroke-width="3.5"/>
+          <circle cx="68" cy="80" r="6" fill="#241A1F"/>
+          <circle cx="100" cy="80" r="6" fill="#241A1F"/>
+          <ellipse cx="84" cy="96" rx="9" ry="7" fill="#241A1F"/>
+          <path d="M60 108 Q84 122 108 108" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M40 118 Q84 140 128 118 L128 128 Q84 150 40 128 Z" fill="#E6003D"/>
+          <circle cx="84" cy="123" r="7" fill="#fff" stroke="#E6003D" stroke-width="3"/>
+        </svg> -->
+      </div>
+      <div style="text-align:center; padding: 0 30px 6px; position:relative; z-index:2;">
+        <div style="font-size:15px; font-weight:900; margin-bottom:6px;">걸음 수 측정이 꺼져 있어요</div>
+        <div style="font-size:12.5px; color:var(--ink-soft); font-weight:700;">포인트를 적립하고 싶으면 하단 토글에서 걸음 수 측정을 켜주세요.</div>
+      </div>
+      <div class="section-title" style="margin-top:26px;">놓치면 아쉬운 <span class="accent">PAYCO</span> 혜택</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="sb-label">전국 가맹점</div><div class="sb-num">270<span class="sb-unit">만 곳</span></div></div>
+        <div class="stat-box"><div class="sb-label">월평균 절약액</div><div class="sb-num">4,100<span class="sb-unit">원↑</span></div></div>
+      </div>
+      <div class="menu-grid" id="menu-list-1"></div>
+      <img src="./ads_banner.jpg" alt="" class="ad-banner">
+      <!-- <div class="ribbon-banner">
+        <div class="b-title">PAYCO 포인트 두 배 적립 위크</div>
+        <div class="b-sub">7.16 – 7.31 한정 혜택</div>
+        <div class="ribbon-tag">PAYCO</div>
+      </div> -->
+      <div class="toggle-row"><div class="t-label">걸음수 측정</div><div class="switch" id="switch-off" onclick="turnOn()"><div class="knob"></div></div></div>
+      <div class="foot-links"><span>서비스 안내</span><span>FAQ</span></div>
+    </div>
+
+    <div class="screen" id="screen-on">
+      <div class="topbar"><span style="width:32px"></span><span class="payco-logo" style="flex:1;justify-content:center;">PAYCO<span class="dot"></span> 워크</span><span style="width:32px"></span></div>
+      <div class="hero">
+        <div class="label">오늘 이만큼 걸었어요</div>
+        <div class="step-row"><span class="step-num" id="live-steps">2,319</span><span class="step-unit">걸음</span></div>
+        <div class="sub-stats">3.4 Km · 100 Kcal</div>
+      </div>
+      <div class="mascot-wrap">
+        <div class="mascot-bg">
+          <video src="./video/mascot_payco.mp4" autoplay muted loop width="100%" height="100%"></video>
+        </div>
+        <!-- <svg class="mascot walk-cycle" width="168" height="168" viewBox="0 0 168 168">
+          <ellipse cx="84" cy="150" rx="46" ry="8" fill="#FFCBD8"/>
+          <g class="foot foot-left"><ellipse cx="70" cy="132" rx="13" ry="9" fill="#E6003D"/></g>
+          <g class="foot foot-right"><ellipse cx="98" cy="132" rx="13" ry="9" fill="#E6003D"/></g>
+          <ellipse cx="52" cy="50" rx="17" ry="22" fill="#E6003D" transform="rotate(-18 52 50)"/>
+          <ellipse cx="116" cy="50" rx="17" ry="22" fill="#E6003D" transform="rotate(18 116 50)"/>
+          <circle cx="84" cy="86" r="54" fill="#FFFFFF" stroke="#241A1F" stroke-width="3.5"/>
+          <path d="M58 76 Q68 68 78 76" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M90 76 Q100 68 110 76" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="84" cy="98" rx="9" ry="7" fill="#241A1F"/>
+          <path d="M58 106 Q84 128 110 106" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M40 118 Q84 140 128 118 L128 128 Q84 150 40 128 Z" fill="#E6003D"/>
+          <circle cx="84" cy="123" r="7" fill="#fff" stroke="#E6003D" stroke-width="3"/>
+          <circle cx="30" cy="40" r="4" fill="#FFB020"/>
+          <circle cx="140" cy="46" r="5" fill="#00C2A8"/>
+          <circle cx="20" cy="90" r="3.5" fill="#FF6E8E"/>
+        </svg> -->
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:46%"></div></div>
+      <div class="milestones">
+        <div class="milestone done"><div class="dot">✓</div><div class="m-label">0걸음</div></div>
+        <div class="milestone done"><div class="dot">P</div><div class="m-label">1천걸음</div></div>
+        <div class="milestone reward"><div class="dot">🎟</div><div class="m-label">2천걸음</div></div>
+        <div class="milestone"><div class="dot">P</div><div class="m-label">3천걸음</div></div>
+        <div class="milestone"><div class="dot">🎟</div><div class="m-label">4천걸음</div></div>
+        <div class="milestone"><div class="dot">P</div><div class="m-label">5천걸음</div></div>
+      </div>
+      <div class="section-title" style="margin-top:26px;">지금 참여하고 <span class="accent">포인트</span> 받기</div>
+      <div class="menu-grid" id="menu-list-2"></div>
+      <div class="ad-slot"><div class="ad-slot-badge">AD</div><div class="ad-slot-title">오늘의 추천 상품을 만나보세요</div><div class="ad-slot-sub">광고 영역 · 제휴사 프로모션 노출</div></div>
+      <div class="stat-card" onclick="go('screen-stats')"><div><div class="s-label">지금까지 얼마나 걸었을까요?</div><div class="s-value">통계보기</div></div><span class="menu-chevron">›</span></div>
+      <div class="toggle-row"><div class="t-label">걸음수 측정</div><div class="switch on" id="switch-on" onclick="turnOff()"><div class="knob"></div></div></div>
+      <div class="foot-links"><span>서비스 안내</span><span>FAQ</span></div>
+    </div>
+
+    <div class="screen" id="screen-roulette">
+      <div class="topbar" style="background:#fff; position:relative; z-index:6;"><span class="back" onclick="go('screen-on')">‹</span><span class="title">PAYCO 행운의 포인트 룰렛</span><span style="width:32px"></span></div>
+      <div class="rl-wrap">
+        <div class="rl-badge">최대<br>500P</div>
+        <div class="rl-eyebrow">PAYCO 워크 포인트 100% 당첨</div>
+        <div class="rl-headline">행운의<br>포인트 룰렛</div>
+        <div class="rl-sub">걸음을 채우고 행운의 룰렛을 돌려보세요!<br>매일 1회 도전 가능</div>
+
+        <div class="rl-wheel-area">
+          <div class="wheel-pin">📍</div>
+          <div class="rl-wheel-ring">
+            <svg class="wheel" id="wheel" width="216" height="216" viewBox="0 0 216 216">
+              <g transform="translate(108,108)">
+                <path d="M0 0 L0 -98 A98 98 0 0 1 84.9 -49 Z" fill="#FFD400"/>
+                <path d="M0 0 L84.9 -49 A98 98 0 0 1 84.9 49 Z" fill="#FFFFFF"/>
+                <path d="M0 0 L84.9 49 A98 98 0 0 1 0 98 Z" fill="#FFD400"/>
+                <path d="M0 0 L0 98 A98 98 0 0 1 -84.9 49 Z" fill="#FFFFFF"/>
+                <path d="M0 0 L-84.9 49 A98 98 0 0 1 -84.9 -49 Z" fill="#FFD400"/>
+                <path d="M0 0 L-84.9 -49 A98 98 0 0 1 0 -98 Z" fill="#FFFFFF"/>
+                <text x="0" y="-64" font-size="13" font-weight="900" fill="#1B1B1F" text-anchor="middle" transform="rotate(-60)">10P</text>
+                <text x="0" y="-64" font-size="13" font-weight="900" fill="#1B1B1F" text-anchor="middle" transform="rotate(0)">30P</text>
+                <text x="0" y="-64" font-size="13" font-weight="900" fill="#1B1B1F" text-anchor="middle" transform="rotate(60)">50P</text>
+                <text x="0" y="-64" font-size="13" font-weight="900" fill="#1B1B1F" text-anchor="middle" transform="rotate(120)">100P</text>
+                <text x="0" y="-64" font-size="12.5" font-weight="900" fill="#1B1B1F" text-anchor="middle" transform="rotate(180)">200P</text>
+                <text x="0" y="-64" font-size="12.5" font-weight="900" fill="#E6003D" text-anchor="middle" transform="rotate(240)">500P</text>
+              </g>
+            </svg>
+          </div>
+          <div class="rl-center-btn" id="spin-btn" onclick="spinWheel()"><span>START</span>돌리기</div>
+        </div>
+
+        <svg class="coin" style="width:34px;top:10px;left:10px;" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#FFD400" stroke="#B8860B" stroke-width="2"/><text x="20" y="26" font-size="16" font-weight="900" text-anchor="middle" fill="#B8860B">P</text></svg>
+        <svg class="coin" style="width:26px;top:60px;right:18px;" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#FFD400" stroke="#B8860B" stroke-width="2"/><text x="20" y="26" font-size="16" font-weight="900" text-anchor="middle" fill="#B8860B">P</text></svg>
+
+        /*룰렛 하단 이미지*/
+        <!-- <div class="rl-mascot-row">
+          <svg width="120" height="120" viewBox="0 0 168 168">
+            <ellipse cx="84" cy="150" rx="46" ry="8" fill="#00000030"/>
+            <ellipse cx="52" cy="50" rx="17" ry="22" fill="#E6003D" transform="rotate(-18 52 50)"/>
+            <ellipse cx="116" cy="50" rx="17" ry="22" fill="#E6003D" transform="rotate(18 116 50)"/>
+            <circle cx="84" cy="86" r="54" fill="#FFFFFF" stroke="#241A1F" stroke-width="3.5"/>
+            <path d="M58 76 Q68 66 78 76" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M90 76 Q100 66 110 76" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="84" cy="98" rx="9" ry="7" fill="#241A1F"/>
+            <path d="M56 106 Q84 132 112 106" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M40 118 Q84 140 128 118 L128 128 Q84 150 40 128 Z" fill="#E6003D"/>
+            <circle cx="84" cy="123" r="7" fill="#fff" stroke="#E6003D" stroke-width="3"/>
+          </svg>
+        </div> -->
+      </div>
+    </div>
+
+    <div class="screen" id="screen-scratch">
+      <div class="topbar"><span class="back" onclick="go('screen-on')">‹</span><span class="title">복권 긁고</span><span style="width:32px"></span></div>
+      <div class="detail-hero" style="padding-bottom:0;">
+        <div class="d-icon" style="background:#FFF3D9;">🎫</div>
+        <h2>즉석 복권을 긁어보세요</h2>
+        <p>동전 없이 손가락으로 카드를<br>문지르면 포인트가 나타나요.</p>
+      </div>
+      <div class="scratch-stage">
+        <div class="scratch-card">
+          <div class="scratch-prize" id="scratch-prize">+30P</div>
+          <canvas id="scratch-canvas" width="260" height="150"></canvas>
+        </div>
+      </div>
+      <div class="scratch-hint" id="scratch-hint">카드를 손가락으로 문질러보세요</div>
+    </div>
+
+    <div class="screen" id="screen-rps">
+      <div class="topbar"><span class="back" onclick="go('screen-on')">‹</span><span class="title">가위바위보하고</span><span style="width:32px"></span></div>
+      <div class="detail-hero" style="padding-bottom:0;">
+        <div class="d-icon" style="background:#F1EAFB;">✌️</div>
+        <h2>마스코트를 이겨보세요</h2>
+        <p>이기면 50P, 비기면 20P, 져도 5P는 드려요.</p>
+      </div>
+      <div class="rps-arena">
+        <div class="rps-side">
+          <div class="rps-hand" id="rps-me">✊</div>
+          <div class="rps-tag">나</div>
+        </div>
+        <div class="rps-vs">VS</div>
+        <div class="rps-side">
+          <div class="rps-hand" id="rps-cpu">✊</div>
+          <div class="rps-tag">마스코트</div>
+        </div>
+      </div>
+      <div class="rps-result-text" id="rps-result"></div>
+      <div class="rps-choices" id="rps-choices">
+        <div class="rps-choice-btn" onclick="playRPS('rock')">✊<span>바위</span></div>
+        <div class="rps-choice-btn" onclick="playRPS('paper')">✋<span>보</span></div>
+        <div class="rps-choice-btn" onclick="playRPS('scissors')">✌️<span>가위</span></div>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-coin">
+      <div class="topbar"><span class="back" onclick="go('screen-on')">‹</span><span class="title">동전 뒤집고</span><span style="width:32px"></span></div>
+      <div class="detail-hero" style="padding-bottom:0;">
+        <div class="d-icon" style="background:#FFEFE0;">🪙</div>
+        <h2>동전을 던져보세요</h2>
+        <p>앞면이 나오면 100P, 뒷면이 나오면 20P!</p>
+      </div>
+      <div class="coin-stage">
+        <div class="coin" id="coin">
+          <div class="coin-face coin-front">100P</div>
+          <div class="coin-face coin-back">PAYCO<br>20P</div>
+        </div>
+      </div>
+      <div class="cta-area"><button class="btn" id="coin-btn" onclick="flipCoin()">동전 던지기</button></div>
+    </div>
+
+    <div class="screen" id="screen-checkin">
+      <div class="topbar"><span class="back" onclick="go('screen-on')">‹</span><span class="title">매일 참여하고</span><span style="width:32px"></span></div>
+      <div class="detail-hero" style="padding-bottom:0;">
+        <div class="d-icon" style="background:#E7F8F4;">📅</div>
+        <h2>오늘 출석 체크하기</h2>
+        <p>매일 도장을 찍으면 포인트가 쌓여요.</p>
+      </div>
+      <div class="checkin-strip" id="checkin-strip"></div>
+      <div class="cta-area"><button class="btn" id="checkin-btn" onclick="doCheckin()">오늘 도장 찍기</button></div>
+    </div>
+
+    <div class="screen" id="screen-mission">
+      <div class="topbar"><span class="back" onclick="go('screen-on')">‹</span><span class="title">미션 참여하고</span><span style="width:32px"></span></div>
+      <div class="detail-hero" style="padding-bottom:0;">
+        <div class="d-icon" style="background:#FFE3E9;">🎁</div>
+        <h2>오늘의 미션 클리어하기</h2>
+        <p>미션 3개를 모두 완료하면 100P를 드려요.</p>
+      </div>
+      <div class="mission-list" id="mission-list"></div>
+      <div class="cta-area"><button class="btn" id="mission-btn" disabled onclick="claimMission()">미션 3개 모두 완료하면 받을 수 있어요</button></div>
+    </div>
+
+    <div class="screen" id="screen-stats">
+      <div class="topbar"><span class="back" onclick="go('screen-on')">‹</span><span class="title">걸음 통계</span><span style="width:32px"></span></div>
+      <div style="padding: 22px 20px;">
+        <div class="stat-grid" style="grid-template-columns:1fr; padding:0 0 10px;">
+          <div class="stat-box"><div class="sb-label">이번 주 평균</div><div class="sb-num">6,240<span class="sb-unit">걸음</span></div></div>
+        </div>
+        <div class="stat-grid" style="padding:0;">
+          <div class="stat-box"><div class="sb-label">이번 달 누적</div><div class="sb-num">3,180<span class="sb-unit">P</span></div></div>
+          <div class="stat-box"><div class="sb-label">연속 참여일</div><div class="sb-num">12<span class="sb-unit">일 🔥</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-modal-overlay" id="result-modal-overlay">
+      <div class="result-modal-card">
+        <div class="rm-title">축하합니다!</div>
+        <div class="rm-mascot">
+          <img src="./popup.png" alt="" width="50%">
+          <!-- <svg width="120" height="112" viewBox="0 0 160 150">
+            <circle cx="34" cy="30" r="9" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <circle cx="128" cy="22" r="7" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <circle cx="140" cy="50" r="6" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <circle cx="18" cy="58" r="6" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <ellipse cx="80" cy="140" rx="52" ry="8" fill="#F1E4E4"/>
+            <rect x="30" y="118" width="20" height="18" rx="3" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <rect x="52" y="112" width="20" height="24" rx="3" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <rect x="90" y="114" width="20" height="22" rx="3" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <rect x="112" y="120" width="20" height="16" rx="3" fill="#FFD400" stroke="#B8860B" stroke-width="2"/>
+            <ellipse cx="46" cy="70" rx="15" ry="19" fill="#E6003D" transform="rotate(-30 46 70)"/>
+            <ellipse cx="114" cy="70" rx="15" ry="19" fill="#E6003D" transform="rotate(30 114 70)"/>
+            <circle cx="80" cy="82" r="46" fill="#FFFFFF" stroke="#241A1F" stroke-width="3.5"/>
+            <path d="M58 74 Q68 65 78 74" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M82 74 Q92 65 102 74" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="80" cy="92" rx="8" ry="6" fill="#241A1F"/>
+            <path d="M60 100 Q80 116 100 100" stroke="#241A1F" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M38 108 Q80 128 122 108 L122 118 Q80 138 38 118 Z" fill="#E6003D"/>
+            <circle cx="80" cy="112" r="6.5" fill="#fff" stroke="#E6003D" stroke-width="3"/>
+            <path d="M44 58 L30 38" stroke="#241A1F" stroke-width="7" stroke-linecap="round"/>
+            <circle cx="27" cy="34" r="9" fill="#FFE1E9" stroke="#241A1F" stroke-width="3.5"/>
+            <path d="M116 58 L130 38" stroke="#241A1F" stroke-width="7" stroke-linecap="round"/>
+            <circle cx="133" cy="34" r="9" fill="#FFE1E9" stroke="#241A1F" stroke-width="3.5"/>
+          </svg> -->
+        </div>
+        <div class="rm-sub" id="result-modal-sub">500P 당첨되셨어요!</div>
+        <div class="rm-desc">PAYCO 워크 포인트로 실물카드도 만들 수 있어요.<br>1분이면 발급 완료, 추가 혜택도 더 받아보세요.</div>
+        <button class="btn" onclick="closeResultModal(true)">카드 발급받고 <br> 추가 혜택 더 받기</button>
+        <button class="btn secondary" onclick="closeResultModal(false)">확인</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const menuData = [
+  {icon:'🎯', bg:'#FFE1E9', title:'룰렛 돌리고', sub:'포인트 받기', action:()=>go('screen-roulette')},
+  {icon:'🎫', bg:'#FFF3D9', title:'복권 긁고', sub:'포인트 받기', action:()=>openScratch()},
+  {icon:'📅', bg:'#E7F8F4', title:'매일 참여하고', sub:'포인트 받기', action:()=>openCheckin()},
+  {icon:'✌️', bg:'#F1EAFB', title:'가위바위보하고', sub:'포인트 받기', action:()=>openRPS()},
+  {icon:'🪙', bg:'#FFEFE0', title:'동전 뒤집고', sub:'포인트 받기', action:()=>openCoin()},
+  {icon:'🎁', bg:'#FFE3E9', title:'미션 참여하고', sub:'포인트 받기', action:()=>openMission()},
+];
+function renderMenu(containerId){
+  const el = document.getElementById(containerId);
+  el.innerHTML = menuData.map((m,i)=>`
+    <div class="menu-item" onclick="menuData[${i}].action()">
+      <div class="menu-icon" style="background:${m.bg}">${m.icon}</div>
+      <div class="menu-text"><div class="menu-title">${m.title}</div><div class="menu-sub">${m.sub}</div></div>
+      <div class="menu-chevron">›</div>
+    </div>`).join('');
+}
+renderMenu('menu-list-1');
+renderMenu('menu-list-2');
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function turnOn(){ go('screen-on'); }
+function turnOff(){ go('screen-off'); }
+
+let spinning = false;
+function spinWheel(){
+  if(spinning) return;
+  spinning = true;
+  const btn = document.getElementById('spin-btn');
+  btn.classList.add('spinning'); btn.innerHTML = '돌아가는<br>중...';
+  const wheel = document.getElementById('wheel');
+  const points = [10,30,50,100,200,500];
+  const idx = Math.floor(Math.random()*points.length);
+  const segAngle = 360/points.length;
+  const targetRotation = 1800 + (360 - idx*segAngle - segAngle/2);
+  wheel.style.transform = `rotate(${targetRotation}deg)`;
+  setTimeout(()=>{
+    spinning = false;
+    btn.classList.remove('spinning'); btn.innerHTML = '<span>START</span>돌리기';
+    showResult(points[idx]);
+  }, 3300);
+}
+function claimDirect(points){ showResult(points); }
+function showResult(points){
+  document.getElementById('result-modal-sub').textContent = `${points}P 당첨되셨어요!`;
+  document.getElementById('result-modal-overlay').classList.add('active');
+}
+function closeResultModal(goHome){
+  document.getElementById('result-modal-overlay').classList.remove('active');
+  if(goHome) go('screen-on');
+}
+
+/* ---- 가위바위보 ---- */
+const rpsEmoji = { rock:'✊', paper:'✋', scissors:'✌️' };
+const rpsLabel = { rock:'바위', paper:'보', scissors:'가위' };
+function openRPS(){
+  document.getElementById('rps-me').textContent = '✊';
+  document.getElementById('rps-cpu').textContent = '✊';
+  document.getElementById('rps-me').classList.remove('shaking');
+  document.getElementById('rps-cpu').classList.remove('shaking');
+  document.getElementById('rps-result').textContent = '';
+  document.getElementById('rps-choices').querySelectorAll('.rps-choice-btn').forEach(b=>b.classList.remove('disabled'));
+  go('screen-rps');
+}
+function playRPS(mine){
+  document.getElementById('rps-choices').querySelectorAll('.rps-choice-btn').forEach(b=>b.classList.add('disabled'));
+  const meEl = document.getElementById('rps-me'), cpuEl = document.getElementById('rps-cpu');
+  meEl.classList.add('shaking'); cpuEl.classList.add('shaking');
+  const keys = Object.keys(rpsEmoji);
+  const shakeTimer = setInterval(()=>{
+    meEl.textContent = rpsEmoji[keys[Math.floor(Math.random()*3)]];
+    cpuEl.textContent = rpsEmoji[keys[Math.floor(Math.random()*3)]];
+  }, 90);
+  setTimeout(()=>{
+    clearInterval(shakeTimer);
+    meEl.classList.remove('shaking'); cpuEl.classList.remove('shaking');
+    const cpu = keys[Math.floor(Math.random()*3)];
+    meEl.textContent = rpsEmoji[mine];
+    cpuEl.textContent = rpsEmoji[cpu];
+    let outcome, points;
+    if(mine === cpu){ outcome = '비겼어요'; points = 20; }
+    else if(
+      (mine==='rock' && cpu==='scissors') ||
+      (mine==='paper' && cpu==='rock') ||
+      (mine==='scissors' && cpu==='paper')
+    ){ outcome = '승리! 🎉'; points = 50; }
+    else { outcome = '아쉽지만 졌어요'; points = 5; }
+    document.getElementById('rps-result').textContent = `나: ${rpsLabel[mine]} · 마스코트: ${rpsLabel[cpu]} → ${outcome}`;
+    setTimeout(()=> showResult(points), 900);
+  }, 900);
+}
+
+/* ---- 동전 뒤집기 ---- */
+function openCoin(){
+  const coin = document.getElementById('coin');
+  coin.style.transition = 'none';
+  coin.style.transform = 'rotateY(0deg)';
+  document.getElementById('coin-btn').disabled = false;
+  document.getElementById('coin-btn').textContent = '동전 던지기';
+  go('screen-coin');
+}
+function flipCoin(){
+  const btn = document.getElementById('coin-btn');
+  if(btn.disabled) return;
+  btn.disabled = true; btn.textContent = '동전이 돌아가는 중...';
+  const coin = document.getElementById('coin');
+  const isHeads = Math.random() < 0.5;
+  coin.style.transition = 'transform 1.4s cubic-bezier(.2,.8,.25,1)';
+  coin.style.transform = `rotateY(${1080 + (isHeads?0:180)}deg)`;
+  setTimeout(()=>{
+    showResult(isHeads ? 100 : 20);
+  }, 1500);
+}
+
+/* ---- 출석 체크 ---- */
+function openCheckin(){
+  const days = ['월','화','수','목','금','토','일'];
+  const todayIdx = 3;
+  const strip = document.getElementById('checkin-strip');
+  strip.innerHTML = days.map((d,i)=>{
+    let cls = 'checkin-day';
+    let icon = '';
+    if(i < todayIdx){ cls += ' done'; icon = '✓'; }
+    else if(i === todayIdx){ cls += ' today'; icon = i.toString(); }
+    return `<div class="${cls}" id="cd-${i}"><div class="cd-label">${d}</div><div class="cd-circle">${i===todayIdx ? '' : icon}</div></div>`;
+  }).join('');
+  document.getElementById('checkin-btn').disabled = false;
+  document.getElementById('checkin-btn').textContent = '오늘 도장 찍기';
+  go('screen-checkin');
+}
+function doCheckin(){
+  const btn = document.getElementById('checkin-btn');
+  if(btn.disabled) return;
+  btn.disabled = true;
+  const todayEl = document.getElementById('cd-3');
+  todayEl.classList.add('stamped');
+  todayEl.querySelector('.cd-circle').textContent = '✓';
+  btn.textContent = '출석 완료!';
+  setTimeout(()=> showResult(15), 700);
+}
+
+/* ---- 미션 ---- */
+const missionSteps = ['PAYCO 워크 앱 켜기', '근처 가맹점 둘러보기', '오늘 걸음 3,000보 채우기'];
+let missionChecked = [];
+function openMission(){
+  missionChecked = missionSteps.map(()=>false);
+  renderMissionList();
+  document.getElementById('mission-btn').disabled = true;
+  document.getElementById('mission-btn').textContent = '미션 3개 모두 완료하면 받을 수 있어요';
+  go('screen-mission');
+}
+function renderMissionList(){
+  const el = document.getElementById('mission-list');
+  el.innerHTML = missionSteps.map((s,i)=>`
+    <div class="mission-item ${missionChecked[i]?'checked':''}" onclick="toggleMission(${i})">
+      <div class="mi-check">✓</div>
+      <div class="mi-text">${s}</div>
+    </div>`).join('');
+}
+function toggleMission(i){
+  missionChecked[i] = !missionChecked[i];
+  renderMissionList();
+  const allDone = missionChecked.every(Boolean);
+  const btn = document.getElementById('mission-btn');
+  btn.disabled = !allDone;
+  btn.textContent = allDone ? '100P 받기' : '미션 3개 모두 완료하면 받을 수 있어요';
+}
+function claimMission(){
+  if(document.getElementById('mission-btn').disabled) return;
+  showResult(100);
+}
+
+let scratchDone = false;
+function openScratch(){
+  scratchDone = false;
+  const points = [10,20,30,50,100];
+  const prize = points[Math.floor(Math.random()*points.length)];
+  document.getElementById('scratch-prize').textContent = `+${prize}P`;
+  document.getElementById('scratch-hint').textContent = '카드를 손가락으로 문질러보세요';
+  go('screen-scratch');
+  requestAnimationFrame(()=> initScratchCanvas(prize));
+}
+
+function initScratchCanvas(prize){
+  const canvas = document.getElementById('scratch-canvas');
+  canvas.style.opacity = '1';
+  canvas.style.pointerEvents = 'auto';
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+
+  ctx.clearRect(0,0,w,h);
+  const grad = ctx.createLinearGradient(0,0,w,h);
+  grad.addColorStop(0,'#CFCFD4');
+  grad.addColorStop(1,'#9E9EA6');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.font = '900 16px Pretendard, sans-serif';
+  for(let y=-10; y<h+20; y+=26){
+    for(let x=-10; x<w+40; x+=70){
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(-0.35);
+      ctx.fillText('PAYCO', 0, 0);
+      ctx.restore();
+    }
+  }
+
+  let scratching = false;
+  function scratchAt(x,y){
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x,y,20,0,Math.PI*2);
+    ctx.fill();
+  }
+  function getPos(e){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = w/rect.width, scaleY = h/rect.height;
+    return { x:(e.clientX-rect.left)*scaleX, y:(e.clientY-rect.top)*scaleY };
+  }
+  function checkProgress(){
+    const data = ctx.getImageData(0,0,w,h).data;
+    let cleared = 0;
+    const step = 4*10;
+    let total = 0;
+    for(let i=3;i<data.length;i+=step){ total++; if(data[i]===0) cleared++; }
+    const pct = cleared/total;
+    if(pct > 0.5 && !scratchDone){
+      scratchDone = true;
+      canvas.style.opacity = '0';
+      canvas.style.pointerEvents = 'none';
+      document.getElementById('scratch-hint').textContent = '꽝 없이 100% 당첨! 잠시 후 결과로 이동해요';
+      setTimeout(()=> showResult(prize), 700);
+    }
+  }
+  function onDown(e){ scratching = true; const p=getPos(e); scratchAt(p.x,p.y); }
+  function onMove(e){ if(!scratching) return; const p=getPos(e); scratchAt(p.x,p.y); checkProgress(); }
+  function onUp(){ scratching = false; checkProgress(); }
+
+  canvas.onpointerdown = onDown;
+  canvas.onpointermove = onMove;
+  window.onpointerup = onUp;
+}
+
+(function(){
+  const host = document.getElementById('confetti-off');
+  const colors = ['#E6003D','#FFB020','#00C2A8','#FF6E8E'];
+  let html='';
+  for(let i=0;i<10;i++){
+    const size = 4 + Math.random()*4;
+    const left = Math.random()*100;
+    const top = Math.random()*90;
+    const rot = Math.random()*360;
+    const c = colors[i % colors.length];
+    html += `<div class="confetti" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;transform:rotate(${rot}deg);background:${c};"></div>`;
+  }
+  host.innerHTML = html;
+  host.style.position='absolute'; host.style.inset='0';
+})();
+</script>
+</body>
+</html>
